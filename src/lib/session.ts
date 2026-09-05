@@ -14,7 +14,13 @@ export function getSessionOptions(): SessionOptions {
     password: process.env.SESSION_SECRET,
     cookieName: "booktracker_session",
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      // Only mark the cookie Secure if the operator confirms HTTPS is
+      // actually terminated in front of this app (e.g. a Cloudflare Tunnel
+      // with a real hostname). Secure cookies are dropped by browsers over
+      // plain HTTP, which is how this app is reached on the LAN or over a
+      // raw VPN tunnel (Netbird) — defaulting to secure here would silently
+      // break login in those setups.
+      secure: process.env.COOKIE_SECURE === "true",
       sameSite: "lax",
     },
   };
