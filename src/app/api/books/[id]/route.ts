@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { parseStatus } from "@/lib/book-status";
 
 const bookSelect = {
   id: true,
   isbn: true,
   title: true,
   author: true,
+  genre: true,
+  status: true,
   coverUrl: true,
   notes: true,
   addedAt: true,
@@ -39,9 +42,15 @@ export async function PATCH(request: Request, { params }: { params: Params }) {
   }
 
   const body = await request.json().catch(() => null);
+  if (body?.status !== undefined && parseStatus(body.status) === undefined) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
+
   const data: Record<string, unknown> = {};
   if (typeof body?.title === "string" && body.title.trim()) data.title = body.title.trim();
   if (typeof body?.author === "string") data.author = body.author.trim() || null;
+  if (typeof body?.genre === "string") data.genre = body.genre.trim() || null;
+  if (parseStatus(body?.status)) data.status = parseStatus(body.status);
   if (typeof body?.isbn === "string") data.isbn = body.isbn.trim() || null;
   if (typeof body?.coverUrl === "string") data.coverUrl = body.coverUrl.trim() || null;
   if (typeof body?.notes === "string") data.notes = body.notes.trim() || null;

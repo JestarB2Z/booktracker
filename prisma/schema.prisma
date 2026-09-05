@@ -19,17 +19,25 @@ model User {
 }
 
 model Book {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   isbn      String?
   title     String
   author    String?
+  genre     String?
+  status    BookStatus @default(TO_READ)
   coverUrl  String?
   notes     String?
-  addedAt   DateTime @default(now())
+  addedAt   DateTime   @default(now())
   ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   @@index([isbn])
   @@index([title])
   @@index([ownerId])
+}
+
+enum BookStatus {
+  TO_READ
+  READING
+  READ
 }

@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { parseStatus } from "@/lib/book-status";
 
 const bookSelect = {
   id: true,
   isbn: true,
   title: true,
   author: true,
+  genre: true,
+  status: true,
   coverUrl: true,
   notes: true,
   addedAt: true,
@@ -56,12 +59,17 @@ export async function POST(request: NextRequest) {
   if (!title) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
+  if (body?.status !== undefined && parseStatus(body.status) === undefined) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
 
   const book = await prisma.book.create({
     data: {
       title,
       isbn: typeof body?.isbn === "string" && body.isbn.trim() ? body.isbn.trim() : null,
       author: typeof body?.author === "string" && body.author.trim() ? body.author.trim() : null,
+      genre: typeof body?.genre === "string" && body.genre.trim() ? body.genre.trim() : null,
+      status: parseStatus(body?.status) ?? "TO_READ",
       coverUrl: typeof body?.coverUrl === "string" && body.coverUrl.trim() ? body.coverUrl.trim() : null,
       notes: typeof body?.notes === "string" && body.notes.trim() ? body.notes.trim() : null,
       ownerId: user.id,

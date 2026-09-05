@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import type { BookStatusValue } from "@/components/BookForm";
 import { BookDetailClient } from "./BookDetailClient";
 
 export default async function BookDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,6 +25,8 @@ export default async function BookDetailPage({ params }: { params: Promise<{ id:
           isbn: book.isbn ?? "",
           title: book.title,
           author: book.author ?? "",
+          genre: book.genre ?? "",
+          status: book.status as BookStatusValue,
           coverUrl: book.coverUrl ?? "",
           notes: book.notes ?? "",
           ownerDisplayName: book.owner.displayName,

@@ -2,10 +2,20 @@
 
 import { useState } from "react";
 
+export const BOOK_STATUS_OPTIONS = [
+  { value: "TO_READ", label: "To read" },
+  { value: "READING", label: "Reading" },
+  { value: "READ", label: "Read" },
+] as const;
+
+export type BookStatusValue = (typeof BOOK_STATUS_OPTIONS)[number]["value"];
+
 export interface BookFormValues {
   isbn: string;
   title: string;
   author: string;
+  genre: string;
+  status: BookStatusValue;
   coverUrl: string;
   notes: string;
 }
@@ -23,6 +33,8 @@ export function BookForm({ initial, submitLabel, onSubmit, onIsbnBlur, children 
     isbn: initial?.isbn ?? "",
     title: initial?.title ?? "",
     author: initial?.author ?? "",
+    genre: initial?.genre ?? "",
+    status: initial?.status ?? "TO_READ",
     coverUrl: initial?.coverUrl ?? "",
     notes: initial?.notes ?? "",
   });
@@ -88,6 +100,43 @@ export function BookForm({ initial, submitLabel, onSubmit, onIsbnBlur, children 
           type="text"
           value={values.author}
           onChange={(e) => update("author", e.target.value)}
+          className="rounded-lg border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Genre
+        <input
+          type="text"
+          value={values.genre}
+          onChange={(e) => update("genre", e.target.value)}
+          className="rounded-lg border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        />
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Status
+        <select
+          value={values.status}
+          onChange={(e) => update("status", e.target.value as BookStatusValue)}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          {BOOK_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Cover image URL
+        <input
+          type="url"
+          inputMode="url"
+          placeholder="https://…"
+          value={values.coverUrl}
+          onChange={(e) => update("coverUrl", e.target.value)}
           className="rounded-lg border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
         />
       </label>

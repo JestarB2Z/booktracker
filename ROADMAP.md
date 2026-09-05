@@ -22,7 +22,8 @@ Things to come back to, roughly in the order they'd add the most value.
 
 ## Feature ideas (explicitly deferred from the MVP)
 
-- [ ] Reading status / wishlist (want-to-read vs. owned)
+- [x] Reading status (To read / Reading / Read) — done, plus a genre field
+      and full editing of an existing book (including its cover URL)
 - [ ] Ratings / reviews
 - [ ] Track multiple copies owned by the *same* person (right now "Add
       anyway" creates a second row, but there's no explicit quantity field)
