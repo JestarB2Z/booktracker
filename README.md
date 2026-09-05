@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Book Tracker
 
-## Getting Started
+A family-shared book library tracker — check whether anyone in the family already
+owns a book before buying a duplicate. Scan a barcode in the shop, or search
+manually; the search checks every family member's collection, not just your own.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
+cp .env.example .env   # then edit SESSION_SECRET / ADMIN_USERNAME / ADMIN_PASSWORD
+npx prisma migrate dev
+npx prisma db seed     # creates the admin account from .env
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 and log in with the admin account you set in `.env`.
+Once logged in, use **Admin → Add a family member** to create accounts for
+everyone else — there's no public sign-up form by design.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploying with Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+On the host (e.g. your Proxmox VM), copy `.env.example` to `.env` and fill in
+real values (a random 32+ character `SESSION_SECRET`, and an admin
+username/password), then:
 
-## Learn More
+```bash
+docker compose up --build -d
+```
 
-To learn more about Next.js, take a look at the following resources:
+The app listens on port 3000. Books are persisted in a SQLite file in the
+`booktracker-data` Docker volume, so they survive container restarts/rebuilds.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Expose port 3000 to the outside world via your own reverse proxy / tunnel
+(e.g. a Cloudflare Tunnel or Netbird) — this app doesn't handle that layer
+itself, it just serves plain HTTP.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To add or manage family accounts after the first deploy, log in as the admin
+account and use the **Admin** tab.
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Barcode scanning uses the browser's native `BarcodeDetector` API where
+  available (Chrome/Android), falling back to `@zxing/browser` elsewhere
+  (Safari/iOS/Firefox). It needs camera access, so test it on a real phone —
+  it won't do much in a desktop browser without a camera pointed at a barcode.
+- ISBN metadata lookup tries the Open Library API first, then Google Books.

@@ -1,0 +1,16 @@
+services:
+  booktracker:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/data/booktracker.db
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - booktracker-data:/data
+    restart: unless-stopped
+
+volumes:
+  booktracker-data:
